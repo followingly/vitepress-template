@@ -267,21 +267,123 @@ if (urlObj.search == "") {
 }
 console.log(newUrl)
 
+###方式B
 
-### Build for Production
+URL格式为http://DomainName/img/Filename?sign=timestamp-rand-uid-md5hash
+timestamp为当前时间戳，如1598342331,rand为随机字符串（只需要取一次，之后都是用这个），uid用户id暂时不用，设置为0，md5hash为md5(uri-时间戳-随机字符串-uid-密钥)，如果开启IP鉴权（客户端IP地址为192.168.0.8），那么md5hash为md5(uri-时间戳-随机字符串-uid-密钥-IP地址)，uri转为小写再md5，md5的计算包含连接符-
+方式B设置如下：
 
+<img width="960" height="868" alt="image" src="https://github.com/user-attachments/assets/eedc8c39-72b2-4564-bce2-15a93f317bac" />
 
-### Deploy to GitHub Pages
-
-
-
-### Netlify Deployment
-
-## Best Practices
-
-### File Organization
+方式B与方式A的设置不一样的方式在于，方式B不需要传时间戳的参数，因为已经包括在签名参数里了。
+其中的设置与方式A一样。
 
 
-### Navigation Structure
+动作
 
-### Content Guidelines
+ipset
+
+使用iptables的ipset模块拦黑ip，拉黑IP后，此IP不再能够消耗资源，效果最好
+
+exit
+
+cdn自己主动断开连接，此IP还是能够与cdn建立连接来消耗资源
+
+log
+
+不拦黑，不断开，一直使用过滤器过滤
+
+规则
+规则由匹配器，过滤器，动作组成。
+
+<img width="834" height="876" alt="image" src="https://github.com/user-attachments/assets/07daaa2c-2cd4-4885-9491-daed94f0ccd6" />
+
+这里需要说明的是可以指定一个或两个过滤器。
+
+当指定一个过滤器时，当这个过滤器验证失败时，直接执行动作;
+
+当指定两个过滤器时，即指定过滤器1和过滤器2，那么当过滤器1验证失败，这时还不会执行动作，而是继续使用过滤器2验证，只有当两个过滤器都验证失败时，才执行动作。这样可以有效减少误封，比如过滤器1使用请求频率，过滤器2使用滑动验证，这样可以防止误封请求量比较大的客户。
+
+规则组
+
+一个或多个规则组成一个。网站就是绑定的规则组。
+
+
+### ACL管理
+
+ACL是对客户访问控制的规则，当客户请求匹配规则时，会返回403。ACL与cc规则类似，只是ACL没有过滤器，而是直接匹配后执行相应的行为，允许或拒绝。
+
+<img width="1400" height="918" alt="image" src="https://github.com/user-attachments/assets/404c9e8f-62ca-4209-8789-b637257c41db" />
+
+默认行为 - 可选允许或拒绝，当所有规则没有匹配时，执行默认行为。
+规则列表 - 按顺序一条条匹配，直到匹配才中止，没有匹配就执行默认行为
+
+
+### 网站FAQ
+
+源程序如何获取客户端真实IP
+CDN默认给源服务器发送了两个请求头，X-Real-IP和X-Forwarded-For，这两个请求头都带有客户端的真实IP。
+源程序在不配置的情况下，默认获取到的是节点IP，下面有两种方法来获取真实客户端IP
+
+配置宝塔Nginx，不用修改网站程序
+
+<img width="1572" height="352" alt="image" src="https://github.com/user-attachments/assets/5c9ce992-2076-45ec-87a9-f302dfb4a661" />
+
+其中106.55.151.50是节点IP
+开始配置：
+在配置文件里，增加
+
+    set_real_ip_from  0.0.0.0/0;
+    real_ip_header    X-Forwarded-For;
+
+
+<img width="1690" height="1024" alt="image" src="https://github.com/user-attachments/assets/f756ef23-bb3b-448e-b34e-147c66ca1763" />
+
+配置后，访问日志里显示真实IP了
+
+<img width="1628" height="634" alt="image" src="https://github.com/user-attachments/assets/5061e76f-540e-4ca3-a517-b558e9d6f324" />
+
+
+修改网站程序
+如果是php程序，就使用如下代码获取真实IP
+
+
+$realIP = $_SERVER['HTTP_X_REAL_IP'];
+
+
+即从X-Real-IP请求头获取
+
+如何关闭宝塔防火墙
+为了防止宝塔防火墙拉黑CDN节点，需要关闭宝塔的防火墙。方法如下：
+1. 关闭Nginx免费防火墙
+软件商店-》找到Nginx免费防火墙，点击设置弹出设置页面，点击关闭防火墙，如图：
+
+<img width="1882" height="1382" alt="image" src="https://github.com/user-attachments/assets/cd64cbd7-da2d-4e05-a399-cf04f3c8906a" />
+
+
+
+
+### 网站无法加载http静态资源怎么办
+
+开启网站的https后，无法加载http的静态资源，如css,js等
+方法一:
+如果源服务器配置了https，可以把回源协议改为https
+方法二:
+添加响应头：名称：Content-Security-Policy 值：upgrade-insecure-requests
+如图：
+
+<img width="1166" height="704" alt="image" src="https://github.com/user-attachments/assets/24c599a5-0097-4ca8-bdb1-ec96510a3871" />
+
+
+
+
+## 国家代码列表
+
+国外（不包括港澳台）：
+
+mn,kp,kr,jp,vn,la,kh,th,mm,my,sg,id,bn,ph,tl,in,bd,bt,np,pk,lk,mv,sa,qa,bh,kw,ae,om,ye,ge,lb,sy,il,ps,jo,iq,ir,af,cy,az,tm,tj,kg,uz,kz,dz,ao,bj,bw,bf,bi,cm,cv,cf,td,km,ci,cd,dj,eg,gq,er,et,ga,gm,gh,gn,gw,ke,ls,lr,ly,mg,mw,ml,mr,mu,ma,mz,na,ne,ng,cg,rw,st,sn,sc,sl,so,za,sd,ss,tz,tg,tn,ug,zm,zw,ag,bs,bb,bz,ca,cr,cu,dm,do,sv,ai,bm,gl,gd,gp,gt,ht,hn,jm,mq,mx,ms,aw,cw,ni,pa,kn,lc,vc,tt,tc,us,mf,pr,bl,sx,ar,bo,br,cl,co,ec,gy,py,pe,sr,uy,ve,al,ad,am,at,by,be,ba,bg,hr,cz,dk,ee,fi,fr,de,gr,hu,is,ie,it,lv,li,lt,lu,mk,mt,md,mc,me,nl,no,pl,pt,ro,ru,sm,rs,sk,si,es,se,ch,tr,ua,gb,va,au,pg,nz,fj,sb,pf,nc,vu,ws,gu,fm,to,ki,as,pw,wf,nr,tv,nu,tk
+
+港澳台：
+
+hk,mo,tw
+

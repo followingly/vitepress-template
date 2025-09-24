@@ -1,12 +1,29 @@
-# Custom Theme
+# 新增单个转发
+<img width="1008" height="966" alt="image" src="https://github.com/user-attachments/assets/c6b72f20-2482-45be-a462-a52c7f216c05" />
 
-Learn how to customize the VitePress theme to match your brand and design requirements.
+监听端口 - 支持三种格式88 88/udp 88/tcp，如果不带协议，默认是tcp，多个端口以空格分隔
+源IP - 目录仅支持IP，不支持域名
+源端口 - 任意端口
+## 批量添加转发
+<img width="1020" height="914" alt="image" src="https://github.com/user-attachments/assets/9b91bc6b-d7ed-4c1e-b662-348e2fa3725b" />
 
-## Theme Structure
+格式为: 监听端口|IP|回源端口
+如：
+88 99|1.2.3.4|8080
+88/tcp 99/udp|1.2.3.4|8080
 
-VitePress uses a theme system that allows you to customize the appearance and behavior of your documentation site. The default theme is located in `node_modules/vitepress/dist/client/theme-default/`.
+## 监听设置
+<img width="1806" height="314" alt="image" src="https://github.com/user-attachments/assets/6bdc1093-3c54-49cf-bbd3-dbbead6f570c" />
+可删除或添加监听端口
 
-## Creating a Custom Theme
+源站设置
+
+单IP连接数限制
+<img width="1172" height="218" alt="image" src="https://github.com/user-attachments/assets/de745bce-1f21-4ad6-acd1-512aac6f1dcc" />
+限制单个IP同时发起的连接数限制
+
+ACL
+<img width="3198" height="492" alt="image" src="https://github.com/user-attachments/assets/0e6873c4-38fc-427b-9530-c4f4d958aa18" />
 
 ### Basic Theme Setup
 

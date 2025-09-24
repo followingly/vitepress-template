@@ -4,8 +4,8 @@ layout: home
 
 hero:
   name: "CDN使用文档"
-  text: "A starter template for VitePress"
-  tagline: My great project tagline
+  text: "CDN系统使用从入门到精通"
+  tagline: "有任何疑问请联系@cdnplus"
   actions:
     - theme: brand
       text: Let's Begin

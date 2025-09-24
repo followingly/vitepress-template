@@ -21,7 +21,7 @@ export default defineConfig({
 
     sidebar: [
       {
-        text: 'Quick Start',
+        text: '网站管理',
         collapsed: true,
         items: [
           { text: 'Overview', link: '/quick-start/quick-start' },
@@ -31,7 +31,7 @@ export default defineConfig({
         ]
       },
       {
-        text: 'Advanced',
+        text: '四层转发',
         collapsed: true,
         items: [
           { text: 'Custom Theme', link: '/advanced/custom-theme' },

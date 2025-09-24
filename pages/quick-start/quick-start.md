@@ -1,6 +1,7 @@
-# Quick Start
+# 新增网站
 
-This page demonstrates how to get started with VitePress and includes examples of nested navigation structure.
+以普通用户身份登录后台，点击左侧菜单“网站管理”-》“我的网站”进去网站列表，点击工具栏上的“新增”按钮，弹出添加网站窗口。如图：
+<img width="1008" height="992" alt="image" src="https://github.com/user-attachments/assets/935d5f79-ef61-4c41-b771-5d1bc422dd65" />
 
 ## Getting Started
 

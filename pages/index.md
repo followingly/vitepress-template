@@ -3,7 +3,7 @@
 layout: home
 
 hero:
-  name: "vitepress-template"
+  name: "CDN使用文档"
   text: "A starter template for VitePress"
   tagline: My great project tagline
   actions:

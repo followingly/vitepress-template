@@ -28,10 +28,7 @@ HTTPS设置
 强制HTTPS - 可定义跳转的端口，默认为监听端口的第一个
 回源SSL协议 - 回源使用的ssl协议，可选值有SSLv2, SSLv3, TLSv1, TLSv1.1, TLSv1.2, TLSv1.3
 
-```bash
-mkdir docs
-echo '# Hello VitePress' > docs/index.md
-```
+
 
 ### 源站设置
 
@@ -75,16 +72,6 @@ JS验证同样需要跳转验证，不过是需要浏览器执行js代码才能�
 
 
 
-```js
-// .vitepress/config.js
-import { defineConfig } from 'vitepress'
-
-export default defineConfig({
-  title: 'My Docs',
-  description: 'My documentation site'
-})
-```
-
 ## 回源配置
 
 
@@ -96,101 +83,205 @@ Range回源 - cdnfly在缓存资源时，为提高存储效率会将文件进行
 开启 Range 回源配置能够有效提高大文件分发效率，提升响应速度，降低源站压力。
 
 
-### Custom Theme
+### 高级配置
 
-You can customize the theme by creating your own theme files:
 
-```js
-// .vitepress/theme/index.js
-import DefaultTheme from 'vitepress/theme'
-import './custom.css'
+压缩设置
+可开启或关闭gzip压缩，并定义需要压缩的文件类型
 
-export default DefaultTheme
-```
+Websocket配置
+开启后，nginx就可以代理websocket的请求了
 
-### Markdown Extensions
+错误页面配置
+支持自定义404和50x页面
 
-VitePress supports various markdown extensions:
+源站请求头
+即在回源时，附加一个请求头回源。系统默认传X-Real-IP请求头，值为客户端的IP给源服务器。也可以设置其它的请求头，附加客户IP，如
 
-::: tip
-This is a tip box
-:::
+<img width="1050" height="636" alt="image" src="https://github.com/user-attachments/assets/0a601228-9735-4df7-a9a0-4a43cd845045" />
 
-::: warning
-This is a warning box
-:::
+URL转向
+此URL转向功能使用的是Nginx的rewrite模块，更详情的说明参考http://nginx.org/en/docs/http/ngx_http_rewrite_module.html#rewrite
 
-::: danger
-This is a danger box
-:::
+<img width="1004" height="836" alt="image" src="https://github.com/user-attachments/assets/384e13f3-7244-4baa-bc69-77efc2e42f77" />
 
-### Code Highlighting
 
-VitePress provides excellent syntax highlighting:
 
-```js
-function hello() {
-  console.log('Hello, VitePress!')
+### 缓存配置
+
+缓存配置，是使用Nginx proxy模块，更多的说明请参考http://nginx.org/en/docs/http/ngx_http_proxy_module.html
+
+<img width="1586" height="1092" alt="image" src="https://github.com/user-attachments/assets/ad64c690-1f48-46f6-96d7-ab1ea5656510" />
+
+类型 - 可选后缀名，目录，全路径
+选择后缀名时，内容填写如css|js|png，不区分大小，表示缓存后缀为css,js,png的请求，如http://www.cdnfly.cn/123.css
+选择目录时，内容填写aa|bb|cc，表示缓存如http://cdn.cn/aa/11.php,http://cdn.cn/aa/22.jsp的请求
+选择全路径时，内容填写/123.css，表示只缓存http://cdn.cn/123.css的请求
+有效期 - 输入数字，单位可选秒，时，天
+忽略参数 - 启用时，忽略url的参数，如/123.css与/123.css?a=1，这两个请求只缓存一份，请求时/123.css,/123.css?a=2,/123.css?b=3都是认为已经缓存了，取与/123.css同样的缓存
+强制缓存 - 当想要缓存动态内容时，或者发现设置了缓存但实际没有生效，可以开启这个
+不缓存条件 - 设置某一特定的请求不缓存，比如缓存了整个网站除了客户端带指定cookie名为wordpress_logged_in的请求，那么可以变量输入$http_cookie，字符串输入wordpress_logged_in。
+
+刷新预热
+
+刷新缓存
+
+可刷新具体的URL，也可刷新整个目录下的文件
+
+预热URL
+
+为了提高缓存命中率和首个用户的访问速度，可以在用户访问之前，先预热下资源
+
+### 证书管理
+可独立的管理所有证书，可自己续期Let's encrypt的证书，查看所有证书的过期时间等
+
+上传自己的证书
+如图，可以上传自己已经申请好的证书，之后绑定到网站上使用
+
+<img width="1424" height="1256" alt="image" src="https://github.com/user-attachments/assets/6b1734bb-ed77-41f7-9e22-e83bbbf4b8c2" />
+
+申请Let's encrypt证书
+
+如图可申请 www.cdn.cn cdn.cn的Let's encrypt免费证书，如果不指定DNS API，www.cdn.cn和cdn.cn需要预先解析到cdn的节点。如果指定了DNS API就不需要，DNS API是cdn.cn域名所在DNS提供商的API密钥。
+
+<img width="1410" height="1220" alt="image" src="https://github.com/user-attachments/assets/3293fba0-144f-44d6-b96d-9a4848e23381" />
+Let's encrypt支持申请通配符证书，不过只支持dns的验证方式，所以必须指定申请域名的DNS API，如图
+
+<img width="1418" height="1052" alt="image" src="https://github.com/user-attachments/assets/e2211576-e228-4ac7-861e-239653904269" />
+
+支持批量申请Let's encrypt证书，只需要一行输入一个或多个域名就行，如图
+
+<img width="1408" height="876" alt="image" src="https://github.com/user-attachments/assets/a86fb469-7b46-4ca0-9ffb-ce2167e7f8d1" />
+
+当然，系统还提供了一键申请Let's encryp一个或多个网站的功能，进一步方面域名证书的申请，如图：
+
+<img width="928" height="406" alt="image" src="https://github.com/user-attachments/assets/f9ac1b6f-b488-43e5-9eb4-c5c7abfae091" />
+
+
+
+
+## CC规则
+
+防cc规则主要由三部分组成匹配器，过滤器，动作。
+
+匹配器: 用来匹配用户的请求，可以匹配用户IP,Host,req_uri(带参数),uri(不带参数),user_agent和referer。一个匹配器可以有多个匹配项，添加多个匹配项时，此匹配器所有的匹配项都满足时，这个匹配器才为真。如果匹配了请求，就使用下面的过滤器来对请求进行验证。
+过滤器: 用来对客户请求进行验证，比如统计请求数是否超限，是否输入对验证码，是否跳转到正确的URL等，如果验证次数超过指定次数，那么就执行下面指定的动作来拦截。
+动作: 当请求无法通过过滤器时，执行相应的动作。
+
+匹配器
+匹配器由匹配项，操作符，匹配值组成。比如匹配项是IP，操作符是=，匹配值是192.168.0.1，表示客户端IP是192.168.0.1才算匹配。
+
+<img width="866" height="892" alt="image" src="https://github.com/user-attachments/assets/6b9edeb3-7d4a-4046-9453-02d135f64b93" />
+
+IP地址 - 客户端IP地址
+域名 - 客户请求的域名
+请求URI - 请求的url，如/123.php?a=1，保留参数匹配。
+请求URI(不带参数) - 去除参数的url，如原始/123.php?a=1，经处理变成/123.php再去匹配
+请求方法 - 如GET, POST等
+浏览器UA - 浏览器名称，如Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36
+国家代码 - 由于两位字母表示某个国家的IP地址，比如CN表示在中国网络下请求网站的客户，完整的国家代码列表https://www.iban.com/country-codes
+
+<img width="946" height="882" alt="image" src="https://github.com/user-attachments/assets/6443b781-e4bf-427a-8a40-db0f3862a90a" />
+
+等于 - 即与匹配值完全匹配条件才成立
+不等于 - 参考等于
+包含- 要匹配的值包含有匹配值条件就成立，如请求URI为/index.php，匹配值为php的话，条件成立
+不包含 - 参考包含
+前缀匹配 - 即从前面开始匹配，如请求URI为/api/index，当匹配值为/api时，条件成立，值为index时，条件不成立
+后缀匹配 - 即从尾部开始匹配，如请求URI为/api/index，当匹配值为index时，条件成立，匹配值为/api时，条件不成立
+正则匹配 - 如^/[0-9]+，即匹配以/开头，后面接数字的URI
+
+过滤器
+
+<img width="1162" height="1112" alt="image" src="https://github.com/user-attachments/assets/180ac9c3-25e3-41f7-984b-28675faf54be" />
+
+
+请求速率
+
+限制客户在一定时间内的总请求次数。可以限制总的URL请求数，也可以限制同一个URL累积的请求数。
+
+302跳转
+当客户请求cdnfly节点时，cdnfly会302返回一个url，客户跟随访问这个URL才算验证通过，否则算失败。
+
+浏览器识别
+客户请求cdnfly节点时，cdnfly返回一段带跳转功能的js代码，客户跟随访问这个URL才算验证通过，否则算失败。
+
+滑动验证
+客户请求cdnfly节点时，cdnfly返回一个滑动条，客户需要拖动滑动条才算验证通过，否则算失败。
+
+验证码
+客户请求cdnfly节点时，cdnfly返回一个验证码，客户需要输入正确的验证码提交才算验证通过，否则算失败。
+
+URL鉴权
+
+url鉴权过滤器适用时API类防cc攻击。需要与客户端配合，cdn定义一个密钥，客户端md5如uri,时间戳,随机数,密钥，得出的值传给cdn验证，验证失败到一定次数将拉黑这个IP。URL鉴权提供两种鉴权方式，A和B。
+
+方式A
+
+URL格式为http://DomainName/img/FileName?sign=md5hash&t=timestamp
+timestamp为当前时间戳，如1598342331（签名用的时间戳与参数t的时间戳需要一致），md5hash为md5(密钥uri时间戳)，如果开启IP鉴权（客户端IP地址为192.168.0.8），那么md5hash为md5(密钥uri时间戳IP地址)， 其中密钥为在cdn定义好的密钥，md5hash为32位，uri为不带参数的路径，且要转为小写再做md5，如/img/filename，时间戳为1598342331(精确到秒就行)
+方式A的设置如下
+
+
+<img width="894" height="964" alt="image" src="https://github.com/user-attachments/assets/5db539ac-aa8c-4402-947c-8c4c45bc47a3" />
+
+
+n秒内，最大失败次数 - 即如果在60秒内，验证失败超过5次的话，拉黑IP
+
+鉴权方式 - 这里选TypeA
+
+密钥 - 与其它数据一起md5得到的hash，客户端同样使用这里定义的密钥来md5
+签名参数名 - 默认为sign
+
+时间戳参数名 - 默认t
+
+最大时间相差(秒) - 允许上下相关多少秒，超过此范围签名认为无效
+
+签名使用次数 - 带同一个签名的url允许访问的次数，0为不限制，越过限制则拉黑IP
+
+
+javascript示例代码：
+
+
+// 获取时间戳
+let timeStamp = Date.parse(new Date()) / 1000;
+
+// 将要请求的原始url
+let url = "http://for-test.cdnfly.cn/index.php?model=abc"
+
+// 从原始url中获取其路径
+let urlObj = new URL(url)
+let path = urlObj.pathname.toLowerCase()
+
+// cdn后台配置的密钥
+let key = "KRcz58Wn4yBprtc2"
+
+// 对密钥、路径、时间戳md5签名
+let sign = md5(key+path+timeStamp)
+
+// 生成新的请求url
+if (urlObj.search == "") {
+	let newUrl = url+"?sign=" + sign+"&t="+timeStamp
+} else {
+	let newUrl = url+"&sign=" + sign+"&t="+timeStamp
 }
-```
+console.log(newUrl)
 
-```css
-.custom-style {
-  color: #42b883;
-  font-weight: bold;
-}
-```
-
-## Deployment
 
 ### Build for Production
 
-```bash
-npm run docs:build
-```
 
 ### Deploy to GitHub Pages
 
-1. Push your code to GitHub
-2. Enable GitHub Pages in repository settings
-3. Set source to GitHub Actions
-4. Create deployment workflow
+
 
 ### Netlify Deployment
-
-1. Connect your repository to Netlify
-2. Set build command: `npm run docs:build`
-3. Set publish directory: `docs/.vitepress/dist`
 
 ## Best Practices
 
 ### File Organization
 
-Organize your documentation with a clear structure:
-
-```
-docs/
-├── guide/
-│   ├── getting-started.md
-│   ├── installation.md
-│   └── configuration.md
-├── reference/
-│   ├── config.md
-│   └── theme.md
-└── index.md
-```
 
 ### Navigation Structure
 
-Use clear and logical navigation:
-
-- Group related pages together
-- Use descriptive titles
-- Keep navigation depth reasonable (2-3 levels max)
-
 ### Content Guidelines
-
-- Write clear, concise content
-- Use code examples where helpful
-- Include screenshots for complex features
-- Keep pages focused on a single topic 
